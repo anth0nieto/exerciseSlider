@@ -1,5 +1,4 @@
-import React from 'react';
-import type { Node } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import {
   ELECTRON_BLUE,
@@ -19,6 +18,7 @@ import { Formik, FormikProps } from 'formik';
 import CustomButton from './components/custom-button';
 import CustomSlider from './components/custom-slider';
 import { CalculateModel } from './model';
+import LoadginModal from './components/loading-modal';
 
 const styles = StyleSheet.create({
   root: {
@@ -73,7 +73,8 @@ const validationSchema = yup.object().shape({
     .required('El Plazo es requerido'),
 });
 
-const Main: Node = () => {
+const Main: React.FC = () => {
+  const [loading, setLoading] = useState<boolean>(false);
   const initialValues: CalculateModel = {
     totalMount: MIN_VALUE_TOTAL_MOUNT,
     period: MIN_VALUE_PERIOD,
@@ -82,6 +83,7 @@ const Main: Node = () => {
   const onGetCredit = () => {
     //HANDLE GET CREDIT
     console.log('HANDLE GET CREDIT');
+    setLoading(true);
   };
 
   const handleSeeDetails = () => {
@@ -97,8 +99,19 @@ const Main: Node = () => {
     });
   };
 
+  useEffect(() => {
+    if (loading) {
+      const timeout = setTimeout(() => {
+        setLoading(false);
+      }, 3000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [loading]);
+
   return (
     <View style={styles.root}>
+      <LoadginModal show={loading} title="Obteniendo crédito ..." />
       <Text style={styles.title}>Simulá tu crédito</Text>
       <Formik
         initialValues={initialValues}
